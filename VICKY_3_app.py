@@ -539,15 +539,16 @@ with tab3:
         st.subheader("Bilateral Growth Accounting")
 
         def plot_bilateral_decomp(df_run, run_name):
+            r_start, r_end = (int(df_run['year'].min()), int(df_run['year'].max())) if not df_run.empty else ("N/A", "N/A")
             fig1 = go.Figure()
             fig1.add_trace(go.Bar(x=df_run['year'], y=df_run['gdpcGrowth'], name='Intensive (Productivity)', marker_color='#E76F51', hovertemplate='<b>Intensive</b>: %{y:.2%}<extra></extra>'))
             fig1.add_trace(go.Bar(x=df_run['year'], y=df_run['popGrowth'], name='Extensive (Demographics)', marker_color='#2A9D8F', hovertemplate='<b>Extensive</b>: %{y:.2%}<extra></extra>'))
             fig1.add_trace(go.Scatter(x=df_run['year'], y=df_run['gdpGrowth'], mode='lines+markers', name='Total GDP Growth', line=dict(color='#1D3557', width=2.5), hovertemplate='<b>Total Growth</b>: %{y:.2%}<extra></extra>'))
             fig1.update_layout(
                 barmode='relative', 
-                title=dict(text=f"{run_name} — Annual Decomposition ({b_start}-{b_end})", font=dict(size=17), x=0.5, xanchor="center"),
+                title=dict(text=f"{run_name} — Annual Decomposition ({r_start}-{r_end})", font=dict(size=17), x=0.5, xanchor="center"),
                 yaxis=dict(title='Annual Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
             )
             st.plotly_chart(fig1, use_container_width=True)
@@ -562,9 +563,9 @@ with tab3:
             fig2.add_trace(go.Scatter(x=df_run['year'], y=roll_gdp, mode='lines+markers', name='Trend GDP', line=dict(color='#1D3557', width=2.5), hovertemplate='<b>Trend GDP</b>: %{y:.2%}<extra></extra>'))
             fig2.update_layout(
                 barmode='relative',
-                title=dict(text=f"{run_name} — Structural Decomposition ({b_ma}-Yr CAGR) ({b_start}-{b_end})", font=dict(size=17), x=0.5, xanchor="center"),
+                title=dict(text=f"{run_name} — Structural Decomposition ({b_ma}-Yr CAGR) ({r_start}-{r_end})", font=dict(size=17), x=0.5, xanchor="center"),
                 yaxis=dict(title='Trend Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
             )
             st.plotly_chart(fig2, use_container_width=True)
@@ -589,6 +590,7 @@ with tab3:
         }).dropna()
 
         if not combined.empty:
+            c_start, c_end = int(combined.index.min()), int(combined.index.max())
             combined['catchup_ratio'] = combined['target_gdpc'] / combined['hegemon_gdpc']
             combined['velocity'] = combined['target_g'] - combined['hegemon_g']
             years = combined.index
@@ -604,7 +606,7 @@ with tab3:
                 annotation_text="Productivity Parity (100%)", annotation_position="top right"
             )
             fig_conv.update_layout(
-                title=dict(text=f"Productivity Convergence: {n1} relative to {n2} ({b_start}-{b_end})", font=dict(size=18), x=0.5, xanchor="center"),
+                title=dict(text=f"Productivity Convergence: {n1} relative to {n2} ({c_start}-{c_end})", font=dict(size=18), x=0.5, xanchor="center"),
                 xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
                 yaxis=dict(title=f'GDP/c as % of {n2}', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
                 hovermode='x unified', height=420, margin=dict(t=60, b=20, l=10, r=10)
@@ -618,7 +620,7 @@ with tab3:
                 hovertemplate="<b>Growth Rate Spread</b>: %{y:+.2%}<extra></extra>"
             ))
             fig_vel.update_layout(
-                title=dict(text=f"Convergence Velocity ({tag1} GDP/c Growth minus {tag2} GDP/c Growth) ({b_start}-{b_end})", font=dict(size=18), x=0.5, xanchor="center"),
+                title=dict(text=f"Convergence Velocity ({tag1} GDP/c Growth minus {tag2} GDP/c Growth) ({c_start}-{c_end})", font=dict(size=18), x=0.5, xanchor="center"),
                 xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
                 yaxis=dict(
                     title='Annual Spread (%)', tickformat='+.1%', 
@@ -634,21 +636,23 @@ with tab3:
 
         bc5, bc6 = st.columns(2)
         with bc5:
+            a1_start, a1_end = (int(d1['year'].min()), int(d1['year'].max())) if not d1.empty else ("N/A", "N/A")
             colors1 = np.where(d1['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
             fig_b_boom1 = go.Figure(go.Bar(x=d1['year'], y=d1['gdpGrowth'], marker_color=colors1, name=n1, hovertemplate=f"<b>{n1}</b>: %{{y:.2%}}<extra></extra>"))
             fig_b_boom1.update_layout(
-                title=dict(text=f"{n1} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                title=dict(text=f"{n1} — Expansion vs Contraction ({a1_start}-{a1_end})", font=dict(size=15), x=0.5, xanchor="center"),
+                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                 hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
             )
             st.plotly_chart(fig_b_boom1, use_container_width=True)
 
+            a2_start, a2_end = (int(d2['year'].min()), int(d2['year'].max())) if not d2.empty else ("N/A", "N/A")
             colors2 = np.where(d2['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
             fig_b_boom2 = go.Figure(go.Bar(x=d2['year'], y=d2['gdpGrowth'], marker_color=colors2, name=n2, hovertemplate=f"<b>{n2}</b>: %{{y:.2%}}<extra></extra>"))
             fig_b_boom2.update_layout(
-                title=dict(text=f"{n2} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                title=dict(text=f"{n2} — Expansion vs Contraction ({a2_start}-{a2_end})", font=dict(size=15), x=0.5, xanchor="center"),
+                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                 hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
             )
@@ -876,15 +880,16 @@ with tab4:
             st.subheader("Cross-Campaign Growth Accounting")
 
             def plot_meta_decomp(df_run, run_name):
+                r_start, r_end = (int(df_run['year'].min()), int(df_run['year'].max())) if not df_run.empty else ("N/A", "N/A")
                 fig1 = go.Figure()
                 fig1.add_trace(go.Bar(x=df_run['year'], y=df_run['gdpcGrowth'], name='Intensive (Productivity)', marker_color='#E76F51', hovertemplate='<b>Intensive</b>: %{y:.2%}<extra></extra>'))
                 fig1.add_trace(go.Bar(x=df_run['year'], y=df_run['popGrowth'], name='Extensive (Demographics)', marker_color='#2A9D8F', hovertemplate='<b>Extensive</b>: %{y:.2%}<extra></extra>'))
                 fig1.add_trace(go.Scatter(x=df_run['year'], y=df_run['gdpGrowth'], mode='lines+markers', name='Total GDP Growth', line=dict(color='#1D3557', width=2.5), hovertemplate='<b>Total Growth</b>: %{y:.2%}<extra></extra>'))
                 fig1.update_layout(
                     barmode='relative', 
-                    title=dict(text=f"{run_name} — Annual Decomposition ({m_start}-{m_end})", font=dict(size=17), x=0.5, xanchor="center"),
+                    title=dict(text=f"{run_name} — Annual Decomposition ({r_start}-{r_end})", font=dict(size=17), x=0.5, xanchor="center"),
                     yaxis=dict(title='Annual Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
                 )
                 st.plotly_chart(fig1, use_container_width=True)
@@ -899,9 +904,9 @@ with tab4:
                 fig2.add_trace(go.Scatter(x=df_run['year'], y=roll_gdp, mode='lines+markers', name='Trend GDP', line=dict(color='#1D3557', width=2.5), hovertemplate='<b>Trend GDP</b>: %{y:.2%}<extra></extra>'))
                 fig2.update_layout(
                     barmode='relative',
-                    title=dict(text=f"{run_name} — Structural Decomposition ({m_ma}-Yr CAGR) ({m_start}-{m_end})", font=dict(size=17), x=0.5, xanchor="center"),
+                    title=dict(text=f"{run_name} — Structural Decomposition ({m_ma}-Yr CAGR) ({r_start}-{r_end})", font=dict(size=17), x=0.5, xanchor="center"),
                     yaxis=dict(title='Trend Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
                 )
                 st.plotly_chart(fig2, use_container_width=True)
@@ -926,6 +931,7 @@ with tab4:
             }).dropna()
 
             if not combined_m.empty:
+                c_start_m, c_end_m = int(combined_m.index.min()), int(combined_m.index.max())
                 combined_m['catchup_ratio'] = combined_m['target_gdpc'] / combined_m['hegemon_gdpc']
                 combined_m['velocity'] = combined_m['target_g'] - combined_m['hegemon_g']
                 years_m = combined_m.index
@@ -941,7 +947,7 @@ with tab4:
                     annotation_text="Productivity Parity (100%)", annotation_position="top right"
                 )
                 fig_m_conv.update_layout(
-                    title=dict(text=f"Productivity Convergence: {n1_m} relative to {n2_m} ({m_start}-{m_end})", font=dict(size=18), x=0.5, xanchor="center"),
+                    title=dict(text=f"Productivity Convergence: {n1_m} relative to {n2_m} ({c_start_m}-{c_end_m})", font=dict(size=18), x=0.5, xanchor="center"),
                     xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
                     yaxis=dict(title=f'GDP/c Ratio', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
                     hovermode='x unified', height=420, margin=dict(t=60, b=20, l=10, r=10)
@@ -955,7 +961,7 @@ with tab4:
                     hovertemplate="<b>Growth Rate Spread</b>: %{y:+.2%}<extra></extra>"
                 ))
                 fig_m_vel.update_layout(
-                    title=dict(text=f"Convergence Velocity (Run 1 GDP/c Growth minus Run 2 GDP/c Growth) ({m_start}-{m_end})", font=dict(size=18), x=0.5, xanchor="center"),
+                    title=dict(text=f"Convergence Velocity (Run 1 GDP/c Growth minus Run 2 GDP/c Growth) ({c_start_m}-{c_end_m})", font=dict(size=18), x=0.5, xanchor="center"),
                     xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
                     yaxis=dict(
                         title='Annual Spread (%)', tickformat='+.1%', 
@@ -972,22 +978,24 @@ with tab4:
             mc5, mc6 = st.columns(2)
             with mc5:
                 # Chart 1: Run 1 Expansion vs Contraction
+                a1_start_m, a1_end_m = (int(d1_m['year'].min()), int(d1_m['year'].max())) if not d1_m.empty else ("N/A", "N/A")
                 colors1_m = np.where(d1_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom1 = go.Figure(go.Bar(x=d1_m['year'], y=d1_m['gdpGrowth'], marker_color=colors1_m, name=n1_m, hovertemplate=f"<b>{n1_m}</b>: %{{y:.2%}}<extra></extra>"))
                 fig_m_boom1.update_layout(
-                    title=dict(text=f"{n1_m} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    title=dict(text=f"{n1_m} — Expansion vs Contraction ({a1_start_m}-{a1_end_m})", font=dict(size=15), x=0.5, xanchor="center"),
+                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                     hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
                 )
                 st.plotly_chart(fig_m_boom1, use_container_width=True)
 
                 # Chart 2: Run 2 Expansion vs Contraction
+                a2_start_m, a2_end_m = (int(d2_m['year'].min()), int(d2_m['year'].max())) if not d2_m.empty else ("N/A", "N/A")
                 colors2_m = np.where(d2_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom2 = go.Figure(go.Bar(x=d2_m['year'], y=d2_m['gdpGrowth'], marker_color=colors2_m, name=n2_m, hovertemplate=f"<b>{n2_m}</b>: %{{y:.2%}}<extra></extra>"))
                 fig_m_boom2.update_layout(
-                    title=dict(text=f"{n2_m} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    title=dict(text=f"{n2_m} — Expansion vs Contraction ({a2_start_m}-{a2_end_m})", font=dict(size=15), x=0.5, xanchor="center"),
+                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                     hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
                 )
