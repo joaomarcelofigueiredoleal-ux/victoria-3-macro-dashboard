@@ -547,7 +547,7 @@ with tab3:
                 barmode='relative', 
                 title=dict(text=f"{run_name} — Annual Decomposition ({b_start}-{b_end})", font=dict(size=17), x=0.5, xanchor="center"),
                 yaxis=dict(title='Annual Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
             )
             st.plotly_chart(fig1, use_container_width=True)
@@ -564,7 +564,7 @@ with tab3:
                 barmode='relative',
                 title=dict(text=f"{run_name} — Structural Decomposition ({b_ma}-Yr CAGR) ({b_start}-{b_end})", font=dict(size=17), x=0.5, xanchor="center"),
                 yaxis=dict(title='Trend Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
             )
             st.plotly_chart(fig2, use_container_width=True)
@@ -637,8 +637,8 @@ with tab3:
             colors1 = np.where(d1['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
             fig_b_boom1 = go.Figure(go.Bar(x=d1['year'], y=d1['gdpGrowth'], marker_color=colors1, name=n1, hovertemplate=f"<b>{n1}</b>: %{{y:.2%}}<extra></extra>"))
             fig_b_boom1.update_layout(
-                title=dict(text=f"{n1} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                title=dict(text=f"{n1} — Expansion vs Contraction ({b_start}-{b_end})", font=dict(size=15), x=0.5, xanchor="center"),
+                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                 hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
             )
@@ -647,8 +647,8 @@ with tab3:
             colors2 = np.where(d2['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
             fig_b_boom2 = go.Figure(go.Bar(x=d2['year'], y=d2['gdpGrowth'], marker_color=colors2, name=n2, hovertemplate=f"<b>{n2}</b>: %{{y:.2%}}<extra></extra>"))
             fig_b_boom2.update_layout(
-                title=dict(text=f"{n2} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                title=dict(text=f"{n2} — Expansion vs Contraction ({b_start}-{b_end})", font=dict(size=15), x=0.5, xanchor="center"),
+                xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[b_start - 0.5, b_end + 0.5]),
                 yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                 hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
             )
@@ -862,15 +862,15 @@ with tab4:
 
             mc1, mc2 = st.columns(2)
             with mc1:
-                plot_cross_meta('gdp', f'Total GDP: {n1_m} vs {n2_m}', '£ Millions')
-                plot_cross_meta('gdpc', f'GDP per Capita: {n1_m} vs {n2_m}', '£')
-                plot_cross_meta('population', f'Population: {n1_m} vs {n2_m}', 'Millions')
-                plot_cross_meta('sol', f'Standard of Living: {n1_m} vs {n2_m}', 'Index')
+                plot_cross_meta('gdp', f'Total GDP Comparison', '£ Millions')
+                plot_cross_meta('gdpc', f'GDP per Capita Comparison', '£')
+                plot_cross_meta('population', f'Population Comparison', 'Millions')
+                plot_cross_meta('sol', f'Standard of Living Comparison', 'Index')
             with mc2:
-                plot_cross_meta('gdpGrowth', f'GDP Growth Rate: {n1_m} vs {n2_m}', 'Rate (%)', is_pct=True)
-                plot_cross_meta('gdpcGrowth', f'GDP/c Growth Rate: {n1_m} vs {n2_m}', 'Rate (%)', is_pct=True)
-                plot_cross_meta('popGrowth', f'Population Growth Rate: {n1_m} vs {n2_m}', 'Rate (%)', is_pct=True)
-                plot_cross_meta('solGrowth', f'SoL Growth Rate: {n1_m} vs {n2_m}', 'Rate (%)', is_pct=True)
+                plot_cross_meta('gdpGrowth', f'Annual GDP Growth Rate', 'Rate (%)', is_pct=True)
+                plot_cross_meta('gdpcGrowth', f'Annual GDP/c Growth Rate', 'Rate (%)', is_pct=True)
+                plot_cross_meta('popGrowth', f'Annual Population Growth Rate', 'Rate (%)', is_pct=True)
+                plot_cross_meta('solGrowth', f'Annual SoL Growth Rate', 'Rate (%)', is_pct=True)
 
             st.divider()
             st.subheader("Cross-Campaign Growth Accounting")
@@ -884,7 +884,7 @@ with tab4:
                     barmode='relative', 
                     title=dict(text=f"{run_name} — Annual Decomposition ({m_start}-{m_end})", font=dict(size=17), x=0.5, xanchor="center"),
                     yaxis=dict(title='Annual Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
                 )
                 st.plotly_chart(fig1, use_container_width=True)
@@ -901,7 +901,7 @@ with tab4:
                     barmode='relative',
                     title=dict(text=f"{run_name} — Structural Decomposition ({m_ma}-Yr CAGR) ({m_start}-{m_end})", font=dict(size=17), x=0.5, xanchor="center"),
                     yaxis=dict(title='Trend Contribution', tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
-                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    xaxis=dict(showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     hovermode='x unified', height=400, margin=dict(t=60, b=20, l=10, r=10)
                 )
                 st.plotly_chart(fig2, use_container_width=True)
@@ -975,8 +975,8 @@ with tab4:
                 colors1_m = np.where(d1_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom1 = go.Figure(go.Bar(x=d1_m['year'], y=d1_m['gdpGrowth'], marker_color=colors1_m, name=n1_m, hovertemplate=f"<b>{n1_m}</b>: %{{y:.2%}}<extra></extra>"))
                 fig_m_boom1.update_layout(
-                    title=dict(text=f"{n1_m} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    title=dict(text=f"{n1_m} — Expansion vs Contraction ({m_start}-{m_end})", font=dict(size=15), x=0.5, xanchor="center"),
+                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                     hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
                 )
@@ -986,8 +986,8 @@ with tab4:
                 colors2_m = np.where(d2_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom2 = go.Figure(go.Bar(x=d2_m['year'], y=d2_m['gdpGrowth'], marker_color=colors2_m, name=n2_m, hovertemplate=f"<b>{n2_m}</b>: %{{y:.2%}}<extra></extra>"))
                 fig_m_boom2.update_layout(
-                    title=dict(text=f"{n2_m} — Expansion vs Contraction", font=dict(size=15), x=0.5, xanchor="center"),
-                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)'),
+                    title=dict(text=f"{n2_m} — Expansion vs Contraction ({m_start}-{m_end})", font=dict(size=15), x=0.5, xanchor="center"),
+                    xaxis=dict(title='Year', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', range=[m_start - 0.5, m_end + 0.5]),
                     yaxis=dict(tickformat='.1%', showgrid=True, gridcolor='rgba(128, 128, 128, 0.2)', zeroline=True, zerolinecolor='#888888', zerolinewidth=1.5),
                     hovermode='x unified', height=280, margin=dict(t=50, b=20, l=10, r=10)
                 )
