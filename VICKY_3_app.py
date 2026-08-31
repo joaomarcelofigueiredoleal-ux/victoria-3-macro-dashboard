@@ -66,6 +66,15 @@ def get_scale_menu():
         )
     ]
 
+# --- SIDEBAR SUPPORT ---
+with st.sidebar:
+    st.markdown("### ☕ Support the Project")
+    st.write("If this dashboard helped analyze your campaign, consider supporting its development!")
+    st.markdown("[**☕ Buy me a Coffee / Ko-fi**](https://ko-fi.com/joaomarcelofleal)")
+    st.divider()
+    st.write("**Pix (Brazil):**")
+    st.code("1c6eff73-ffa1-4297-8eda-622ca1a57d9d", language="text")
+
 # --- TABS LAYOUT ---
 tab1, tab2, tab3, tab4 = st.tabs([
     "🌍 1. Global Landscape", 
@@ -137,9 +146,11 @@ with tab1:
         with col1:
             plot_multitrace('gdp', 'Total GDP', 'Gross Domestic Product (£ Millions)')
             plot_multitrace('gdpc', 'GDP per Capita', 'GDP per Capita (£)')
+            plot_multitrace('population', 'Total Population', 'Population (Millions)')
         with col2:
             plot_multitrace('gdp', 'GDP Indexed', 'Indexed GDP (100 = Base Year)', is_indexed=True)
             plot_multitrace('sol', 'Standard of Living', 'Standard of Living Index')
+            plot_multitrace('population', 'Population Indexed', 'Indexed Population (100 = Base Year)', is_indexed=True)
 
         st.divider()
         st.subheader("Global Dataset Master Summary")
@@ -977,7 +988,6 @@ with tab4:
 
             mc5, mc6 = st.columns(2)
             with mc5:
-                # Chart 1: Run 1 Expansion vs Contraction
                 a1_start_m, a1_end_m = (int(d1_m['year'].min()), int(d1_m['year'].max())) if not d1_m.empty else ("N/A", "N/A")
                 colors1_m = np.where(d1_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom1 = go.Figure(go.Bar(x=d1_m['year'], y=d1_m['gdpGrowth'], marker_color=colors1_m, name=n1_m, hovertemplate=f"<b>{n1_m}</b>: %{{y:.2%}}<extra></extra>"))
@@ -989,7 +999,6 @@ with tab4:
                 )
                 st.plotly_chart(fig_m_boom1, use_container_width=True)
 
-                # Chart 2: Run 2 Expansion vs Contraction
                 a2_start_m, a2_end_m = (int(d2_m['year'].min()), int(d2_m['year'].max())) if not d2_m.empty else ("N/A", "N/A")
                 colors2_m = np.where(d2_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom2 = go.Figure(go.Bar(x=d2_m['year'], y=d2_m['gdpGrowth'], marker_color=colors2_m, name=n2_m, hovertemplate=f"<b>{n2_m}</b>: %{{y:.2%}}<extra></extra>"))
