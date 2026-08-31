@@ -8,15 +8,41 @@ import streamlit as st
 st.set_page_config(page_title="Victoria 3 Macroeconomics", layout="wide")
 st.title("🌍 Victoria 3 Macroeconomic Dashboard")
 
-# 1. FILE DISCOVERY
-csv_files = [f for f in os.listdir('.') if f.endswith('.csv')]
-if not csv_files:
-    st.error("No CSV files found in the directory.")
+# --- SIDEBAR SUPPORT & UPLOADS ---
+with st.sidebar:
+    st.markdown("### 📂 Analyze Your Campaign")
+    st.write("Upload your own `.csv` exports to analyze them instantly. Files are stored temporarily in your browser session and are never saved.")
+    uploaded_files = st.file_uploader("Upload CSVs", type=['csv'], accept_multiple_files=True)
+    
+    st.divider()
+    
+    st.markdown("### ☕ Support the Project")
+    st.write("If this dashboard helped analyze your campaign, consider supporting its development!")
+    st.markdown("[**☕ Buy me a Coffee / Ko-fi**](https://ko-fi.com/YOUR_USERNAME)")
+    
+    st.divider()
+    
+    st.write("**Pix (Brazil):**")
+    st.code("insert-your-random-pix-key-here", language="text")
+
+# 1. FILE DISCOVERY & MERGING
+local_csvs = [f for f in os.listdir('.') if f.endswith('.csv')]
+file_options = {f: f for f in local_csvs}
+
+if uploaded_files:
+    for uf in uploaded_files:
+        file_options[f"☁️ {uf.name}"] = uf
+
+if not file_options:
+    st.error("No CSV files found. Please upload a campaign file in the sidebar.")
     st.stop()
 
+csv_files = list(file_options.keys())
+
 @st.cache_data
-def load_data(file_path):
-    df_raw = pd.read_csv(file_path)
+def load_data(file_source):
+    # Pandas can read both string file paths and Streamlit UploadedFile objects
+    df_raw = pd.read_csv(file_source)
     df_raw['date'] = pd.to_datetime(df_raw['date'])
     df_raw['gdpc'] = df_raw['gdpc'] / 100000
     df_raw['population'] = df_raw['gdp'] / df_raw['gdpc']
@@ -66,15 +92,6 @@ def get_scale_menu():
         )
     ]
 
-# --- SIDEBAR SUPPORT ---
-with st.sidebar:
-    st.markdown("### ☕ Support the Project")
-    st.write("If this dashboard helped analyze your campaign, consider supporting its development!")
-    st.markdown("[**☕ Buy me a Coffee / Ko-fi**](https://ko-fi.com/joaomarcelofleal)")
-    st.divider()
-    st.write("**Pix (Brazil):**")
-    st.code("1c6eff73-ffa1-4297-8eda-622ca1a57d9d", language="text")
-
 # --- TABS LAYOUT ---
 tab1, tab2, tab3, tab4 = st.tabs([
     "🌍 1. Global Landscape", 
@@ -89,8 +106,11 @@ tab1, tab2, tab3, tab4 = st.tabs([
 with tab1:
     st.header("The Great Power Race")
     selected_file_t1 = st.selectbox("Select Campaign Data:", csv_files, key="t1_file")
-    played_sigla_t1 = selected_file_t1.split('-')[0].upper() if '-' in selected_file_t1 else "UNKNOWN"
-    df_t1 = load_data(selected_file_t1)
+    
+    clean_name_t1 = selected_file_t1.replace('☁️ ', '')
+    played_sigla_t1 = clean_name_t1.split('-')[0].upper() if '-' in clean_name_t1 else "UNKNOWN"
+    
+    df_t1 = load_data(file_options[selected_file_t1])
 
     latest_rank = df_t1.dropna(subset=['gdp']).groupby('country').last().reset_index().sort_values(by='gdp', ascending=False)
     default_tags = latest_rank['country'].head(8).tolist()
@@ -210,8 +230,11 @@ with tab1:
 with tab2:
     st.header("Single Economy Dossier")
     selected_file_t2 = st.selectbox("Select Campaign Data:", csv_files, key="t2_file")
-    played_sigla_t2 = selected_file_t2.split('-')[0].upper() if '-' in selected_file_t2 else "UNKNOWN"
-    df_t2 = load_data(selected_file_t2)
+    
+    clean_name_t2 = selected_file_t2.replace('☁️ ', '')
+    played_sigla_t2 = clean_name_t2.split('-')[0].upper() if '-' in clean_name_t2 else "UNKNOWN"
+    
+    df_t2 = load_data(file_options[selected_file_t2])
 
     col_t2_1, col_t2_2, col_t2_3 = st.columns([1, 2, 1])
     available_tags_t2 = sorted(df_t2.dropna(subset=['gdp'])['country'].unique().tolist())
@@ -422,8 +445,11 @@ with tab2:
 with tab3:
     st.header("Bilateral & Convergence Analysis")
     selected_file_t3 = st.selectbox("Select Campaign Data:", csv_files, key="t3_file")
-    played_sigla_t3 = selected_file_t3.split('-')[0].upper() if '-' in selected_file_t3 else "UNKNOWN"
-    df_t3 = load_data(selected_file_t3)
+    
+    clean_name_t3 = selected_file_t3.replace('☁️ ', '')
+    played_sigla_t3 = clean_name_t3.split('-')[0].upper() if '-' in clean_name_t3 else "UNKNOWN"
+    
+    df_t3 = load_data(file_options[selected_file_t3])
 
     available_tags_t3 = sorted(df_t3.dropna(subset=['gdp'])['country'].unique().tolist())
     col_t3_1, col_t3_2, col_t3_3, col_t3_4 = st.columns([1, 1, 2, 1])
@@ -764,18 +790,20 @@ with tab3:
 with tab4:
     st.header("Cross-Campaign Meta-Analysis")
     if len(csv_files) < 2:
-        st.info("Cross-campaign analysis requires at least 2 CSV files in your workspace folder.")
+        st.info("Cross-campaign analysis requires at least 2 CSV files. Please upload another campaign in the sidebar.")
     else:
         col_t4_f1, col_t4_f2 = st.columns(2)
         with col_t4_f1:
             file_meta_1 = st.selectbox("First Campaign File (Run 1):", csv_files, index=0, key="t4_f1")
-            played_t4_1 = file_meta_1.split('-')[0].upper() if '-' in file_meta_1 else "UNKNOWN"
+            clean_meta_1 = file_meta_1.replace('☁️ ', '')
+            played_t4_1 = clean_meta_1.split('-')[0].upper() if '-' in clean_meta_1 else "UNKNOWN"
         with col_t4_f2:
             file_meta_2 = st.selectbox("Second Campaign File (Run 2):", csv_files, index=1 if len(csv_files) > 1 else 0, key="t4_f2")
-            played_t4_2 = file_meta_2.split('-')[0].upper() if '-' in file_meta_2 else "UNKNOWN"
+            clean_meta_2 = file_meta_2.replace('☁️ ', '')
+            played_t4_2 = clean_meta_2.split('-')[0].upper() if '-' in clean_meta_2 else "UNKNOWN"
 
-        df_meta_1 = load_data(file_meta_1)
-        df_meta_2 = load_data(file_meta_2)
+        df_meta_1 = load_data(file_options[file_meta_1])
+        df_meta_2 = load_data(file_options[file_meta_2])
 
         tags_meta_1 = sorted(df_meta_1.dropna(subset=['gdp'])['country'].unique().tolist())
         tags_meta_2 = sorted(df_meta_2.dropna(subset=['gdp'])['country'].unique().tolist())
@@ -988,6 +1016,7 @@ with tab4:
 
             mc5, mc6 = st.columns(2)
             with mc5:
+                # Chart 1: Run 1 Expansion vs Contraction
                 a1_start_m, a1_end_m = (int(d1_m['year'].min()), int(d1_m['year'].max())) if not d1_m.empty else ("N/A", "N/A")
                 colors1_m = np.where(d1_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom1 = go.Figure(go.Bar(x=d1_m['year'], y=d1_m['gdpGrowth'], marker_color=colors1_m, name=n1_m, hovertemplate=f"<b>{n1_m}</b>: %{{y:.2%}}<extra></extra>"))
@@ -999,6 +1028,7 @@ with tab4:
                 )
                 st.plotly_chart(fig_m_boom1, use_container_width=True)
 
+                # Chart 2: Run 2 Expansion vs Contraction
                 a2_start_m, a2_end_m = (int(d2_m['year'].min()), int(d2_m['year'].max())) if not d2_m.empty else ("N/A", "N/A")
                 colors2_m = np.where(d2_m['gdpGrowth'] >= 0, '#2A9D8F', '#E76F51')
                 fig_m_boom2 = go.Figure(go.Bar(x=d2_m['year'], y=d2_m['gdpGrowth'], marker_color=colors2_m, name=n2_m, hovertemplate=f"<b>{n2_m}</b>: %{{y:.2%}}<extra></extra>"))
