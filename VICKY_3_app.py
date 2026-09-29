@@ -62,7 +62,7 @@ vic3_tags = {
     "JAP": "Japan", "CHI": "China", "QIN": "Qing", "EIC": "East India Company", "KOR": "Korea", "DAI": "Dai Nam",
     "SIA": "Siam", "SIK": "Sikh Empire", "PER": "Persia", "AFG": "Afghanistan",
     "BRZ": "Brazil", "PNI": "Riograndense Republic", "MEX": "Mexico", "CAN": "Canada", "TEX": "Texas", "CUB": "Cuba", "HAI": "Haiti", 
-    "ARG": "Argentina", "CHL": "Chile", "PEU": "Peru", "COL": "Colombia", "GCO": "Gran Colombia"; "NGR": "New Granada",
+    "ARG": "Argentina", "CHL": "Chile", "PEU": "Peru", "COL": "Colombia", "GCO": "Gran Colombia", "NGR": "New Granada",
     "VNZ": "Venezuela", "ECU": "Ecuador", "BOL": "Bolivia", "PAR": "Paraguay", "URU": "Uruguay",
     "SAR": "Sardinia-Piedmont", "SIC": "Two Sicilies", "PAP": "Papal States", "TUS": "Tuscany", 
     "BAV": "Bavaria", "SAX": "Saxony", "WUR": "Württemberg", "HAN": "Hanover",
