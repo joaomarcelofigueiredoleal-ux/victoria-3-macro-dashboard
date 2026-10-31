@@ -23,7 +23,7 @@ with st.sidebar:
     st.divider()
     
     st.write("**Pix (Brazil):**")
-    st.code("insert-your-random-pix-key-here", language="text")
+    st.code("1c6eff73-ffa1-4297-8eda-622ca1a57d9d", language="text")
 
 # 1. FILE DISCOVERY & MERGING
 local_csvs = [f for f in os.listdir('.') if f.endswith('.csv')]
