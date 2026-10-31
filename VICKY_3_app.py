@@ -22,7 +22,7 @@ with st.sidebar:
     
     st.divider()
     
-    st.write("**Pix (Brazil):**")
+    st.write("**Chave Pix Aleatória (Brazil):**")
     st.code("1c6eff73-ffa1-4297-8eda-622ca1a57d9d", language="text")
 
 # 1. FILE DISCOVERY & MERGING
